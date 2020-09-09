@@ -1,25 +1,51 @@
  
 const express = require("express");
 const router = express.Router();
-const secureRandom = require('secure-random');
-
 
 const User = require('../models/User');
-// var querystring = require('querystring');
-// var http = require('http');
+const Notebook = require('../models/Notebook');
+const { fetchMediumUserAndRenderJSON } = require('./helpers/fetchMediumUserAndRenderJSON');
 var request = require('request');
-// var fs = require('fs');
+
+router.get("/", (req,res) => {
+    User.find((err, arr) => {
+        res.status(200).json(arr);
+        // console.log(arr);
+    });
+})
+
+router.post("/", (req, res) => {
+    User.create({ name: req.body.name, username: req.body.username }, (err, user) => {
+        // console.log(user);
+        Notebook.create({ name: "First Notebook", owner: user }, (err, notebook) => {
+            user.notebooks.push(notebook._id);
+            user.save((err, user) => {
+                // console.log('saved user', user);
+                return res.status(201).json(user);
+            })
+        })
+    })
+})
+
+router.delete("/:id", (req, res) => {
+    User.deleteOne({ _id: req.params.id }, err => {
+        console.log(err);
+        res.status(200).json({ message: "User has been deleted" })
+    })
+
+    Notebook.deleteOne({ owner: req.params.id }, err => {
+        console.log(err);
+        res.status(200).json({ message: "User has been deleted" })
+    })
+})
 
 router.get("/authenticate", (req, res) => {
     console.log(process.env.MEDIUM_CLIENTID)
 })
-
-router.post('/', (req, res) => {
-    const newUser = new User({
-        name: req.body.name,
-        username: req.body.username,
-        
-    })
+router.post('/medium', (req, res) => {
+    const { access_token, refresh_token } = req.body
+    // Get user profile from medium and find or create new user.
+    fetchMediumUserAndRenderJSON(access_token, refresh_token, req, res);
 })
 
 router.post('/medium-oauth', (req, res) => {
@@ -31,7 +57,7 @@ router.post('/medium-oauth', (req, res) => {
         return res.status(403).json({ errors: "Provided State is invalid" })
     }
 
-    var post_data = {
+    const post_data = {
         code: code,
         client_id: process.env.MEDIUM_CLIENTID,
         client_secret: process.env.MEDIUM_CLIENTPW,
@@ -39,7 +65,7 @@ router.post('/medium-oauth', (req, res) => {
         redirect_uri: 'http://127.0.0.1:3000/client'
     }
 
-    var headers = {
+    const headers = {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
         'Accept-Charset': 'utf-8'
@@ -47,34 +73,15 @@ router.post('/medium-oauth', (req, res) => {
 
     // Using auth code, get access_token and refresh_token
     request.post('https://api.medium.com/v1/tokens', { form: post_data, headers }, (err, response, body) => {
-        // console.log(body);
         const { errors, access_token, refresh_token } = JSON.parse(body)
 
         if (errors) {
             return res.status(403).json({ errors })
         }
 
-        headers = {
-            'Authorization': `Bearer ${access_token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Accept-Charset': 'utf-8',
-        }
-
-        // Get user profile from medium and find or create new user.
-        request.get('https://api.medium.com/v1/me', { headers }, (err, response, body) => {
-            const { name, username } = JSON.parse(body).data;
-            User.findOne({ username: username }, (err, result) => {
-                if (!result) {
-                    User.create({ username, name }, (err, small) => {
-                        return res.status(200).json({ access_token, refresh_token, name, username, notebooks: small.notebooks })
-                    })
-                } else {
-                    return res.status(200).json({ access_token, refresh_token, name, username, notebooks: result.notebooks })
-                }
-            })
-        })
+        fetchMediumUserAndRenderJSON(access_token, refresh_token, req, res);
     })
 });
+
 
 module.exports = router
