@@ -4,7 +4,8 @@ const router = express.Router();
 
 const User = require('../models/User');
 const Notebook = require('../models/Notebook');
-const { fetchMediumUserAndRenderJSON } = require('./helpers/fetchMediumUserAndRenderJSON');
+const fetchMediumUserAndCreateOrFind = require('./helpers/fetchMediumUserAndCreateOrFind');
+const fetchAccessToken = require('./helpers/fetchAccessToken');
 var request = require('request');
 
 router.get("/", (req,res) => {
@@ -42,13 +43,15 @@ router.delete("/:id", (req, res) => {
 router.get("/authenticate", (req, res) => {
     console.log(process.env.MEDIUM_CLIENTID)
 })
-router.post('/medium', (req, res) => {
+router.post('/medium', async (req, res) => {
     const { access_token, refresh_token } = req.body
+    // console.log('access_token', access_token);
     // Get user profile from medium and find or create new user.
-    fetchMediumUserAndRenderJSON(access_token, refresh_token, req, res);
+    const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token);
+    return res.status(200).json({ user, access_token: new_access_token })
 })
 
-router.post('/medium-oauth', (req, res) => {
+router.post('/medium-oauth', async (req, res) => {
     // console.log(req.body);
     const { state, code } = req.body.queryObject
 
@@ -57,31 +60,17 @@ router.post('/medium-oauth', (req, res) => {
         return res.status(403).json({ errors: "Provided State is invalid" })
     }
 
-    const post_data = {
-        code: code,
-        client_id: process.env.MEDIUM_CLIENTID,
-        client_secret: process.env.MEDIUM_CLIENTPW,
-        grant_type: 'authorization_code',
-        redirect_uri: 'http://127.0.0.1:3000/client'
-    }
+    const { access_token, refresh_token } = await fetchAccessToken(code)
+        .catch(err => res.status(403).json(err));
+    // console.log(res.status);
+    if (res.status === 403) return res;
+    
+    const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token)
 
-    const headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'Accept-Charset': 'utf-8'
-    }
-
-    // Using auth code, get access_token and refresh_token
-    request.post('https://api.medium.com/v1/tokens', { form: post_data, headers }, (err, response, body) => {
-        const { errors, access_token, refresh_token } = JSON.parse(body)
-
-        if (errors) {
-            return res.status(403).json({ errors })
-        }
-
-        fetchMediumUserAndRenderJSON(access_token, refresh_token, req, res);
-    })
+    return res.status(200).json({ user, access_token: new_access_token, refresh_token })
 });
 
+// I think here I want to make fetchMediumUser and just test that it does that correctly.
+// I just want a function fetchMediumUser that returns JSON of user, so that we can test it
 
 module.exports = router
