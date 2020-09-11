@@ -11,7 +11,7 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
     }
 
     request.get('https://api.medium.com/v1/me', { headers }, (err, response, body) => {
-        console.log(body);
+        // console.log(body);
         if (JSON.parse(body).errors) {
             // if access_token is expired.
             // get new access_token with refresh_token.
@@ -30,40 +30,35 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
         
             // Using auth code, get access_token and refresh_token
             request.post('https://api.medium.com/v1/tokens', { form, headers }, (err, response, body) => {
-                // console.log("allo??")
-                // console.log('refreshToken', refreshToken)
                 // console.log(body);
                 const { access_token } = JSON.parse(body);
 
                 //try again.
-                fetchMediumUserAndCreateOrFind(access_token, refreshToken).then(result => res(result));
+                fetchMediumUserAndCreateOrFind(access_token, refreshToken).then(r => res(r));
             })
         } else {
             const { name, username } = JSON.parse(body).data;
             // console.log('name', name, 'username', username);
-            User.findOne({ username }, (err, result) => {
+            User.findOne({ username }, async (err, result) => {
                 // console.log('result', result);
                 if (!result) {
                     User.create({ name, username }, (err, user) => {
                         // console.log("err", err);
                         // console.log("User", user);
                         Notebook.create({ name: "First Notebook", owner: user }, (err, notebook) => {
+                            // console.log("errors", err);
+                            // console.log("notebook", notebook);
                             user.notebooks.push(notebook._id);
-                            user.save((err, user) => {
-                                // console.log('saved user', user);
-                                res({ access_token: accessToken, refresh_token: refreshToken, user });
-                                // return user
-                                // return res.status(201).json({ access_token: accessToken, refresh_token: refreshToken, user });
+                            user.save(async (err, user) => {
+                                let populatedUser = await user.populate('notebooks').execPopulate();
+                                res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                             })
                         })
                     }) 
-                        // return res.status(200).json({ access_token: accessToken, refresh_token: refreshToken, name, username, notebooks: small.notebooks })
-                    // })
                 } else {
                     // console.log('result', result);
-                    res({ access_token: accessToken, refresh_token: refreshToken, user: result});
-                    // return result
-                    // return res.status(200).json({ access_token: accessToken, refresh_token: refreshToken, name, username, notebooks: result.notebooks })
+                    let populatedUser = await result.populate('notebooks').execPopulate();
+                    res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                 }
             })
         }

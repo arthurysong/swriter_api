@@ -43,10 +43,9 @@ router.delete("/:id", (req, res) => {
 router.get("/authenticate", (req, res) => {
     console.log(process.env.MEDIUM_CLIENTID)
 })
+
 router.post('/medium', async (req, res) => {
     const { access_token, refresh_token } = req.body
-    // console.log('access_token', access_token);
-    // Get user profile from medium and find or create new user.
     const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token);
     return res.status(200).json({ user, access_token: new_access_token })
 })
@@ -62,15 +61,12 @@ router.post('/medium-oauth', async (req, res) => {
 
     const { access_token, refresh_token } = await fetchAccessToken(code)
         .catch(err => res.status(403).json(err));
-    // console.log(res.status);
     if (res.status === 403) return res;
     
     const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token)
-
+    // console.log("ALLOOOOOO")
+    // console.log("new access token", new_access_token);
     return res.status(200).json({ user, access_token: new_access_token, refresh_token })
 });
-
-// I think here I want to make fetchMediumUser and just test that it does that correctly.
-// I just want a function fetchMediumUser that returns JSON of user, so that we can test it
 
 module.exports = router
