@@ -1,20 +1,18 @@
 // const mongoose = require('mongoose');
 // const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
-const app = require('../server');
+const app = require('../../server');
 // app.listen(6000);
 const supertest = require('supertest');
 const request = supertest(app);
 const nock = require('nock');
-const User = require('../models/User');
-const Notebook = require('../models/Notebook');
+const User = require('../../models/User');
+const Notebook = require('../../models/Notebook');
 // const functions = require('../routes/helpers/fetchMediumUserAndRenderJSON');
 
 require('dotenv').config();
 
 describe("Users Routes", () => {
-    let connection;
-
     jest.setTimeout(30000);
 
     beforeAll(done => {

@@ -4,9 +4,12 @@ const router = express.Router();
 const Note = require('../models/Note');
 
 router.post("/", (req, res) => {
-    Note.create()
-    // console.log('hi');
-    res.status(200).json({ message: 'hi' })
+    if (!req.body.owner) return res.status(400).json({ errors: "Must provide owner id"})
+    if (!req.body.notebook) return res.status(400).json({ errors: "Must provide notebook id"})
+    Note.create(req.body, (err, note) => {
+        // console.log("errors", err);
+        return res.status(201).json(note);
+    })
 })
 
 module.exports = router;
