@@ -66,6 +66,14 @@ describe("Note Routes", () => {
                     expect(notes.length).toBe(1);
                 })
             })
+
+            it("The associated notebook should have the new note's id", done => {
+                // console.log(nb);
+                Notebook.findOne({ _id: nb.id }, (err, nb) => {
+                    expect(nb.notes[0].notebook).toBe(response.body.id)
+                    done();
+                })
+            });
         })
 
         describe("If bad request", () => {

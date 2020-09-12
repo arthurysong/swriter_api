@@ -8,6 +8,7 @@ const request = supertest(app);
 const nock = require('nock');
 const User = require('../../models/User');
 const Notebook = require('../../models/Notebook');
+const Note = require('../../models/Note');
 // const functions = require('../routes/helpers/fetchMediumUserAndRenderJSON');
 
 require('dotenv').config();
@@ -30,6 +31,72 @@ describe("Users Routes", () => {
     afterAll(async () => {
         await mongoose.disconnect();
     });
+
+    describe('/users/:id', () => {
+        describe("If user is found", () => {
+            let u;
+            let response;
+            let nb;
+            let n;
+
+            beforeAll(async done => {
+                u = await User.create({ name: "Test User", username: "testusername123" })
+
+                nb = await Notebook.create({ name: "Test Notebook", owner: u.id })
+                u.notebooks.push(nb._id);
+                await u.save();
+
+                n = await Note.create({ title: "Test Note", content: "Test Note Content", owner: u.id, notebook: nb.id })
+                nb.notes.push(n._id);
+                await nb.save();
+
+                response = await request.get(`/users/${u.id}`)
+                done();
+            })
+
+            afterAll(async () => {
+                await User.deleteMany();
+                await Notebook.deleteMany();
+                await Note.deleteMany();
+            })
+
+            it("Should return status 200", () => {
+                expect(response.status).toBe(200)
+            });
+
+            it("Should render a user with correct id", () => {
+                expect(response.body._id).toBe(u.id);
+            });
+
+            it("Should render a user with populated notebooks", () => {
+                expect(response.body.notebooks[0]).toHaveProperty('name', 'Test Notebook');
+                expect(response.body.notebooks[0]).toHaveProperty('owner', u.id);
+                expect(response.body.notebooks[0]).toHaveProperty('_id', nb.id);
+            });
+
+            it("Should render a user with notebooks that are populated with notes", () => {
+                expect(response.body.notebooks[0].notes[0]).toHaveProperty('title', 'Test Note');
+                expect(response.body.notebooks[0].notes[0]).toHaveProperty('content', 'Test Note Content');
+                expect(response.body.notebooks[0].notes[0]).toHaveProperty('_id', n.id);
+            });
+        })
+
+        describe("If no users with id exists", () => {
+            let response;
+            beforeAll(async done => {
+                response = await request.get(`/users/12341234`)
+                done();
+            })
+
+            it("Should return status 404", () => {
+                expect(response.status).toBe(404);
+            });
+
+            it("Should render error message: User with given id not found", () => {
+                expect(response.body.errors).toBe("User with given id not found");
+            })
+        })
+    })
 
     describe('/medium-oauth', () => {
         describe("If the request STATE is invalid", () => {

@@ -3,6 +3,7 @@ const nock = require('nock');
 const User = require('../../models/User');
 const mongoose = require('mongoose');
 const Notebook = require('../../models/Notebook');
+const Note = require('../../models/Note');
 require('dotenv').config();
 
 describe("fetchMediumUserAndCreateOrFind", () => {
@@ -43,7 +44,7 @@ describe("fetchMediumUserAndCreateOrFind", () => {
                 fetchMediumUserAndCreateOrFind("testAccessToken", "testRefreshToken")
                     .then(res => {
                         result = res
-                        console.log(res);
+                        // console.log(res);
                         done();
                     })
                     .catch(err => { 
@@ -68,6 +69,8 @@ describe("fetchMediumUserAndCreateOrFind", () => {
                 // expect(users.notebooks).toHaveProperty("name");
                 expect(result.user.notebooks[0]).toHaveProperty("name");
             })
+
+            
 
             it("Should save the new user to the database", async done => {
                 const users = await User.find({ name: "Test User", username: "testUsername1"});
@@ -95,7 +98,11 @@ describe("fetchMediumUserAndCreateOrFind", () => {
                 const user = await User.create({ name: "Test User", username: "testUsername1" })
                 const notebook = await Notebook.create({ name: "First Notebook", owner: user })
                 user.notebooks.push(notebook._id);
-                user.save();
+                await user.save();
+
+                const note = await Note.create({ title: "Test Note", content: "Test Content", owner: user._id, notebook: notebook._id })
+                notebook.notes.push(note._id);
+                await notebook.save();
 
                 fetchMediumUserAndCreateOrFind("testAccessToken", "testRefreshToken")
                     .then(res => {
@@ -116,9 +123,14 @@ describe("fetchMediumUserAndCreateOrFind", () => {
             })
 
             it("Should resolve with a populated Notebooks", () => {
-                console.log(result);
+                // console.log(result);
                 expect(result.user.notebooks[0]).toHaveProperty("name");
+            })
 
+            it("Should resolve with a notebook that's populated with notes", () => {
+                // console.log("result", result.user.notebooks[0]);
+                expect(result.user.notebooks[0].notes[0]).toHaveProperty("title", "Test Note");
+                expect(result.user.notebooks[0].notes[0]).toHaveProperty("content", "Test Content");
             })
 
             it("Should not create another user", async done => {
@@ -147,7 +159,7 @@ describe("fetchMediumUserAndCreateOrFind", () => {
             fetchMediumUserAndCreateOrFind("invalidAccessToken", "testRefreshToken")
                 .then(res => {
                     result = res
-                    console.log(res);
+                    // console.log(res);
                     done();
                 })
                 .catch(err => { 

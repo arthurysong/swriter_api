@@ -45,19 +45,31 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
                     User.create({ name, username }, (err, user) => {
                         // console.log("err", err);
                         // console.log("User", user);
-                        Notebook.create({ name: "First Notebook", owner: user }, (err, notebook) => {
+                        Notebook.create({ name: "First Notebook", owner: user }, async (err, notebook) => {
                             // console.log("errors", err);
                             // console.log("notebook", notebook);
                             user.notebooks.push(notebook._id);
-                            user.save(async (err, user) => {
-                                let populatedUser = await user.populate('notebooks').execPopulate();
-                                res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
-                            })
+                            await user.save();
+                            const populatedUser = await user.populate({
+                                path: 'notebooks',
+                                populate: {
+                                    path: 'notes',
+                                    model: 'Note'
+                                }
+                            }).execPopulate();
+                            res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                         })
-                    }) 
+                    })
+
                 } else {
                     // console.log('result', result);
-                    let populatedUser = await result.populate('notebooks').execPopulate();
+                    let populatedUser = await result.populate({
+                        path: 'notebooks',
+                        populate: {
+                            path: 'notes',
+                            model: 'Note'
+                        }
+                    }).execPopulate();
                     res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                 }
             })

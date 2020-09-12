@@ -8,11 +8,21 @@ const fetchMediumUserAndCreateOrFind = require('./helpers/fetchMediumUserAndCrea
 const fetchAccessToken = require('./helpers/fetchAccessToken');
 var request = require('request');
 
-router.get("/", (req,res) => {
-    User.find((err, arr) => {
-        res.status(200).json(arr);
-        // console.log(arr);
-    });
+router.get("/:id", (req,res) => {
+    // console.log(req.params);
+    User.findOne({_id: req.params.id})
+        .populate({
+            path: 'notebooks',
+            populate: {
+                path: 'notes',
+                model: 'Note'
+            }
+        })
+        .exec((err, user) => {
+            // console.log("User", user);
+            if (!user) return res.status(404).json({ errors: "User with given id not found" });
+            res.status(200).json(user);
+        })
 })
 
 router.post("/", (req, res) => {
