@@ -17,4 +17,10 @@ router.post("/", (req, res) => {
     })
 })
 
+router.put("/:id", async (req, res) => {
+    const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
+    // console.log("note after update", note);
+    return res.status(200).json({ message: "Note successfully saved", note })
+})
+
 module.exports = router;

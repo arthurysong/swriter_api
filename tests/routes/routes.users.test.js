@@ -146,9 +146,9 @@ describe("Users Routes", () => {
             //     let mediumProfileScope;
 
                 beforeEach(() => {
-                    nock('https://api.medium.com')
-                        .post('/v1/tokens')
-                        .reply(200, { access_token: "test12345", refresh_token: "test54321"})
+                    // nock('https://api.medium.com')
+                    //     .post('/v1/tokens')
+                    //     .reply(200, { access_token: "test12345", refresh_token: "test54321"})
             //         tokenScope = nock('https://api.medium.com')
             //             .post('/v1/tokens')
             //             .reply(200, { access_token: "test12345", refresh_token: "test54321"})
