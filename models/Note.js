@@ -12,6 +12,10 @@ const NoteSchema = new mongoose.Schema({
     content: {
         type: String
     },
+    published: {
+        type: Boolean,
+        default: false
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,

@@ -25,6 +25,20 @@ router.get("/:id", (req,res) => {
         })
 })
 
+router.get("/", (req, res) => {
+    User.find({})
+    .populate({
+        path: 'notebooks',
+            populate: {
+                path: 'notes',
+                model: 'Note'
+            }
+    })
+    .exec((err, users) => {
+        res.status(200).json(users);
+    })
+})
+
 router.post("/", (req, res) => {
     User.create({ name: req.body.name, username: req.body.username }, (err, user) => {
         // console.log(user);

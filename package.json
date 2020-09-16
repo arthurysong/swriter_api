@@ -19,6 +19,8 @@
     "@shelf/jest-mongodb": "^1.2.3",
     "dotenv": "^8.2.0",
     "jest": "^26.4.2",
+    "mongo-seeding": "^3.4.1",
+    "mongo-seeding-cli": "^3.4.1",
     "nock": "^13.0.4",
     "supertest": "^4.0.2"
   }
