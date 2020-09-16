@@ -5,6 +5,8 @@ const Note = require('../models/Note');
 const Notebook = require('../models/Notebook');
 const User = require('../models/User');
 
+const publishPost = require('./helpers/publishPost');
+
 router.post("/", (req, res) => {
     if (!req.body.owner) return res.status(400).json({ errors: "Must provide owner id"})
     if (!req.body.notebook) return res.status(400).json({ errors: "Must provide notebook id"})
@@ -17,11 +19,21 @@ router.post("/", (req, res) => {
     })
 })
 
-router.post("/:id/publish", (req, res) => {
+router.post("/:id/publish", async (req, res) => {
     // find the note
     // send request to Medium API.
     // if API call is successful, update the published attr for the note
     // Also, we need access token?
+    console.log("Allo??");
+    let n = await Note.findOne({ _id: req.params.id })
+    let u = await User.findOne({ _id: n.owner })
+    if (n.published) {
+        return res.status(400).json({ errors: "Note has already been published" })
+    } else {
+        let r = await publishPost(req.body.access_token, req.body.refresh_token, u.mediumId, n)
+        console.log("r", r);
+        return res.status(201).json(r);
+    }
 })
 
 router.put("/:id", async (req, res) => {

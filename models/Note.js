@@ -16,6 +16,9 @@ const NoteSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    mediumURL: {
+        type: String
+    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,

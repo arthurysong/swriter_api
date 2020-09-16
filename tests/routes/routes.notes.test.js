@@ -199,4 +199,77 @@ describe("Note Routes", () => {
             })
         })
     })
+
+    describe("post /:id/publish", () => {
+        describe("If note has already been published", () => {
+            let n; 
+            let response;
+            beforeAll(async done => {
+                n = await Note.create({ title: "Test Title", content: "Test Content", published: true })
+                response = await request.post(`/notes/${n._id}/publish`).send({ access_token: "testAccessToken", refresh_token: "testRefreshToken" })
+                done();
+            })
+
+            afterAll(async done => {
+                await Note.deleteMany();
+            });
+
+            it("Should render a error response", () => {
+                expect(response.status).toBe(400)
+                expect(response.body.errors).toBe("Note has already been published");
+            });
+        })
+
+        describe("If note has not been published", () => {
+            let n;
+            let u;
+            let mediumScope;
+            let response;
+
+
+            beforeAll(async done => {
+                u = await User.create({ name: "Test User", username: "testusername", mediumId: "testmediumid123" })
+                n = await Note.create({ title: "Test Title", content: "Test Content", owner: u._id })
+
+                mediumScope = nock('https://api.medium.com')
+                    .post('/v1/users/testmediumid123/posts')
+                    .reply(201, { data: {
+                        id: "e6f36a",
+                        title: "Test Title",
+                        authorId: "testuser123",
+                        tags: ["tag1", "tag2", "tag3"],
+                        url: "https://medium.com/@testuser/test-title-e6f36a",
+                        publishedStatus: "public"
+                    }})
+                response = await request.post(`/notes/${n._id}/publish`).send({ access_token: "testAccessToken", refresh_token: "testRefreshToken" })
+                done();
+            })
+
+            afterAll(async done => {
+                await User.deleteMany();
+                await Note.deleteMany();
+            })
+
+            it("Should publish the post on Medium", () => {
+                expect(mediumScope.isDone()).toBe(true);
+            })
+
+            it("Should render a success message", () => {
+                expect(response.status).toBe(201);
+                expect(response.body.success).toBe(true);
+                expect(response.body.note.title).toBe("Test Title");
+                expect(response.body.note.content).toBe("Test Content");
+                expect(response.body.note.published).toBe(true);
+                expect(response.body.note.mediumURL).toBe("https://medium.com/@testuser/test-title-e6f36a")
+            })
+
+            it("Should update the note in the database", async done => {
+                let findN = await Note.findOne({ title: "Test Title" })
+                expect(findN.title).toBe("Test Title");
+                expect(findN.published).toBe(true);
+                expect(findN.mediumURL).toBe("https://medium.com/@testuser/test-title-e6f36a");
+                done();
+            })
+        })
+    })
 })

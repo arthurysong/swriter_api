@@ -12,7 +12,7 @@ mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTo
         await User.deleteMany();
         await Note.deleteMany();
 
-        let user = await User.create({ name: "Arthur Song", username: "arth3rs0ng" });
+        let user = await User.create({ name: "Arthur Song", username: "arth3rs0ng", mediumId: "1a6c3e5d0b22af43ac7fb008fcc058726aef856ec7a0e3f546001e9d4eb71c658" });
         
         let nb1 = await Notebook.create({ name: "First Notebook", owner: user._id });
 
@@ -94,5 +94,8 @@ mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true, useUnifiedTo
 
         user.notebooks.push(nb1._id, nb2._id, nb3._id);
         await user.save();
+
+        console.log("Seeding finished");
+        process.exit();
     })
     .catch(err => console.log(err));
