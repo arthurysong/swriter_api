@@ -35,7 +35,7 @@ describe("fetchMediumUserAndCreateOrFind", () => {
         beforeEach(() => {
             nock('https://api.medium.com')
                 .get('/v1/me')
-                .reply(200, { data: { name: "Test User", username: "testUsername1"}})
+                .reply(200, { data: { name: "Test User", username: "testUsername1", id: "testmediumid123" }})
         })
 
         describe("If user is not already created", () => {
@@ -89,6 +89,13 @@ describe("fetchMediumUserAndCreateOrFind", () => {
                         done();
                     });
             })
+
+            it("Should save the medium profile id to the user's document", async done => {
+                const users = await User.find({ name: "Test User", username: "testUsername1" });
+                // console.log("users", users);
+                expect(users[0].mediumId).toBe("testmediumid123");
+                done();
+            })
         })
 
         describe("If user does already exist", () => {
@@ -138,6 +145,12 @@ describe("fetchMediumUserAndCreateOrFind", () => {
                 expect(users.length).toBe(1);
                 done();
             })
+
+            // it("Should save the medium profile id to the user's document", async done => {
+            //     const users = await User.find({ name: "Test User", username: "testUsername1" });
+            //     expect(users[0].mediumId).toBe("testmediumid123");
+            //     done();
+            // })
         })
     })
 

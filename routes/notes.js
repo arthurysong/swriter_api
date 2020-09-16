@@ -17,6 +17,13 @@ router.post("/", (req, res) => {
     })
 })
 
+router.post("/:id/publish", (req, res) => {
+    // find the note
+    // send request to Medium API.
+    // if API call is successful, update the published attr for the note
+    // Also, we need access token?
+})
+
 router.put("/:id", async (req, res) => {
     const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
     // console.log("note after update", note);
