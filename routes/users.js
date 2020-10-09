@@ -93,4 +93,13 @@ router.post('/medium-oauth', async (req, res) => {
     return res.status(200).json({ user, access_token: new_access_token, refresh_token })
 });
 
+router.post('/github-oauth', async (req, res) => {
+    const { state, code } = req.body.queryObject;
+    if (state !== process.env.GITHUB_STATE) {
+        return res.status(403).json({ errors: "Provided State is invalid" })
+    }
+
+    const { access_token, refresh_token } = await fetchAccessToken(code);
+    console.log("access_token", access_token, "refresh_token", refresh_token);
+})
 module.exports = router

@@ -17,6 +17,9 @@ const UserSchema = new mongoose.Schema({
     mediumId: {
         type: String
     },
+    githubId: {
+        type: String
+    },
     // password: {
     //     type: String,
     //     required: true

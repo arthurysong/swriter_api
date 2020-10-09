@@ -3,7 +3,7 @@ const Note = require('../../models/Note');
 const fetchAccessTokenUsingRefreshToken = require('../helpers/fetchAccessTokenUsingRefreshToken');
 require('dotenv').config();
 
-function publishPost(accessToken, refreshToken, userMediumId, note) {
+function publishPost(accessToken, refreshToken, userMediumId, note, content) {
     return new Promise((res, err) => {
         const headers = {
             'Authorization': `Bearer ${accessToken}`,
@@ -15,7 +15,7 @@ function publishPost(accessToken, refreshToken, userMediumId, note) {
         const postData = {
             title: note.title,
             contentFormat: "markdown",
-            content: note.content,
+            content: content,
             publishStatus: "public"
         }
 
@@ -27,7 +27,7 @@ function publishPost(accessToken, refreshToken, userMediumId, note) {
             console.log(JSON.parse(body));
             if (JSON.parse(body).errors) {
                 let newAccessToken = await fetchAccessTokenUsingRefreshToken(refreshToken);
-                publishPost(newAccessToken, refreshToken, userMediumId, note).then(r => res(r));
+                publishPost(newAccessToken, refreshToken, userMediumId, note, content).then(r => res(r));
             } else {
                 let n = await Note.findOne({ _id: note._id });
                 n.published = true;
