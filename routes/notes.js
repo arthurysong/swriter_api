@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const uuidv4 = require('uuid/v4');
+const uuidv4 = require('uuidv4');
 
 const Note = require('../models/Note');
 const Notebook = require('../models/Notebook');
