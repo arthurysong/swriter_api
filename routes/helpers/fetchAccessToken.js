@@ -7,7 +7,7 @@ function fetchAccessToken(code) {
             client_id: process.env.MEDIUM_CLIENTID,
             client_secret: process.env.MEDIUM_CLIENTPW,
             grant_type: 'authorization_code',
-            redirect_uri: 'http://127.0.0.1:3000/client'
+            redirect_uri: `${process.env.NODE_ENV === "development" ? 'http://127.0.0.1:3000' : 'http://mwriter.herokuapp.com'}/client`
         }
     
         const headers = {
