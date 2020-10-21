@@ -19,8 +19,8 @@ function publishPost(accessToken, refreshToken, userMediumId, note, content) {
             publishStatus: "public"
         }
 
-        console.log(userMediumId);
-        console.log(postData);
+        // console.log(userMediumId);
+        // console.log(postData);
         request.post(`https://api.medium.com/v1/users/${userMediumId}/posts`, { headers, form: postData }, async (err, response, body) => {
             // console.log(err);
             // console.log()

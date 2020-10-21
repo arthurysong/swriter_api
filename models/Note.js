@@ -10,7 +10,8 @@ const NoteSchema = new mongoose.Schema({
         default: Date.now
     }, 
     content: {
-        type: String
+        type: String,
+        default: ""
     },
     published: {
         type: Boolean,

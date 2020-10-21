@@ -53,4 +53,16 @@ router.put("/:id", async (req, res) => {
     return res.status(200).json({ message: "Note successfully saved", note })
 })
 
+router.get("/", async (req, res) => {
+    const notes = await Note.find({});
+
+    return res.status(200).json(notes);
+})
+
+router.delete("/:id", async (req, res) => {
+    await Note.deleteOne({ _id: req.params.id });
+
+    return res.status(200).json({ message: "Note successfully deleted" })
+})
+
 module.exports = router;
