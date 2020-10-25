@@ -5,10 +5,6 @@ const NotebookSchema = new mongoose.Schema({
         type: String,
         default: "Untitled"
     },
-    date: {
-        type: Date,
-        default: Date.now
-    },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         require: true,
@@ -19,5 +15,7 @@ const NotebookSchema = new mongoose.Schema({
         ref: "Note" 
     }]
 })
+
+NotebookSchema.set('timestamps', true);
 
 module.exports = mongoose.model("Notebook", NotebookSchema);

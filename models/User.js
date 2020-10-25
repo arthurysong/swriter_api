@@ -20,18 +20,12 @@ const UserSchema = new mongoose.Schema({
     githubId: {
         type: String
     },
-    // password: {
-    //     type: String,
-    //     required: true
-    // },
-    date: {
-        type: Date,
-        default: Date.now
-    },
     notebooks: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Notebook"
     }]
 })
+
+UserSchema.set('timestamps', true);
 
 module.exports = mongoose.model("User", UserSchema);

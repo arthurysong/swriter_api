@@ -5,10 +5,6 @@ const NoteSchema = new mongoose.Schema({
         type: String,
         default: "Untitled"
     }, 
-    date: {
-        type: Date,
-        default: Date.now
-    }, 
     content: {
         type: String,
         default: ""
@@ -31,5 +27,7 @@ const NoteSchema = new mongoose.Schema({
         ref: "Notebook"
     }
 })
+
+NoteSchema.set('timestamps', true);
 
 module.exports = mongoose.model("Note", NoteSchema);

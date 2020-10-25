@@ -15,12 +15,12 @@ function fetchAccessToken(code) {
             'Accept': 'application/json',
             'Accept-Charset': 'utf-8'
         }
-    
+
         request.post('https://api.medium.com/v1/tokens', { form: post_data, headers }, async (err, response, body) => {
             const { errors, access_token, refresh_token } = JSON.parse(body)
     
             if (errors) {
-                console.log(errors);
+                console.log("error", errors);
                 error(errors)
             }
 
