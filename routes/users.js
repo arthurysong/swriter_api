@@ -6,9 +6,11 @@ const User = require('../models/User');
 const Notebook = require('../models/Notebook');
 const fetchMediumUserAndCreateOrFind = require('./helpers/fetchMediumUserAndCreateOrFind');
 const fetchAccessToken = require('./helpers/fetchAccessToken');
+const fetchMediumPublications = require('./helpers/fetchMediumPublications');
 var request = require('request');
 
 router.get("/:id", (req,res) => {
+
     // console.log(req.params);
     User.findOne({_id: req.params.id})
         .populate({
@@ -68,12 +70,17 @@ router.get("/authenticate", (req, res) => {
     console.log(process.env.MEDIUM_CLIENTID)
 })
 
+// TODO: Change the rest of these routes to use better routes (GET and more descriptive routing)
+// TODO: put access_token and refresh_token in headers instead of body
+// TODO: Use controllers instead of putting all the logic in here?
+
 router.post('/medium', async (req, res) => {
     const { access_token, refresh_token } = req.body
     const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token);
     return res.status(200).json({ user, access_token: new_access_token })
 })
 
+// TODO: Change this to /medium/oauth?
 router.post('/medium-oauth', async (req, res) => {
     // console.log(req.body);
     const { state, code } = req.body.queryObject
@@ -88,10 +95,18 @@ router.post('/medium-oauth', async (req, res) => {
     if (res.status === 403) return res;
     
     const { user, new_access_token } = await fetchMediumUserAndCreateOrFind(access_token, refresh_token)
-    // console.log("ALLOOOOOO")
     // console.log("new access token", new_access_token);
     return res.status(200).json({ user, access_token: new_access_token, refresh_token })
 });
+
+router.get("/medium/:mediumId/publications", async (req, res) => {
+    const { access_token, refresh_token } = req.headers;
+    // const { access_token, refresh_token, mediumId } = req.body;
+    // I need the userId... so that I can make the correct REST call.
+
+    const { publications, new_access_token } = await fetchMediumPublications(access_token, refresh_token, req.params.mediumId);
+    return res.status(200).json({ publications, access_token: new_access_token, refresh_token })
+})
 
 router.post('/github-oauth', async (req, res) => {
     const { state, code } = req.body.queryObject;

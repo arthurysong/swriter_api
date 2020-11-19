@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const uuidv4 = require('uuidv4');
+const { uuid } = require('uuidv4');
 
 const Note = require('../models/Note');
 const Notebook = require('../models/Notebook');
@@ -21,20 +21,28 @@ router.post("/", (req, res) => {
     })
 })
 
+// TODO: add the other extensions for different languages available.
 const extHash = { "javascript": ".js", "ruby": ".rb" }
 router.post("/:id/publish", async (req, res) => {
     let n = await Note.findOne({ _id: req.params.id })
     let u = await User.findOne({ _id: n.owner })
+    const { tags, publication } = req.body;
+    const { access_token, refresh_token } = req.headers;
+
+    // If note has already been published, then nothing happens...
     if (n.published) {
         return res.status(400).json({ errors: "Note has already been published" })
+    
+    
     } else {
+        // console.log("allo??");
         const contentArray = n.content.split('```');
 
         for (i = 0; i < contentArray.length; i++) {
             if (i % 2 != 0) {
                 let lines = contentArray[i].split('\n').slice(0, -1);
                 const language = lines[0];
-                const gistName = `${uuidv4()}.${extHash[language]}`
+                const gistName = `${uuid()}.${extHash[language]}`
                 const gistContent = lines.slice(1).join('\n');
                 const response = await createGist(`Gists for ${n.title}`, { gistName, gistContent })
                 contentArray[i] = response.html_url;
@@ -42,7 +50,8 @@ router.post("/:id/publish", async (req, res) => {
         }
         const contentWithPublishedGists = contentArray.join('');
         // console.log(contentArray);
-        let r = await publishPost(req.body.access_token, req.body.refresh_token, u.mediumId, n, contentWithPublishedGists)
+        console.log("publication", publication);
+        let r = await publishPost(access_token, refresh_token, u.mediumId, n, contentWithPublishedGists, tags, publication)
         return res.status(201).json(r);
     }
 })
