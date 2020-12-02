@@ -1,5 +1,7 @@
 const express = require("express");
 const cors = require('cors');
+const multer  = require('multer');
+const upload = multer({ dest: 'uploads/' });
 
 require('dotenv').config();
 
@@ -12,6 +14,11 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.post('/image', upload.single('file'), (req, res) => {
+  res.status(201).send(req.file);
+})
+
+app.use(express.static('uploads'));
 app.use('/users', users);
 app.use('/notes', notes);
 app.use('/notebooks', notebooks);
