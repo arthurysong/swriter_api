@@ -17,6 +17,14 @@ const UserSchema = new mongoose.Schema({
     mediumId: {
         type: String
     },
+    lastSavedNotebook: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Notebook"
+    },
+    lastSavedNote: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Note"
+    },
     // githubId: {
     //     type: String
     // },

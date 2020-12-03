@@ -7,11 +7,9 @@ const Notebook = require('../models/Notebook');
 const fetchMediumUserAndCreateOrFind = require('./helpers/fetchMediumUserAndCreateOrFind');
 const fetchAccessToken = require('./helpers/fetchAccessToken');
 const fetchMediumPublications = require('./helpers/fetchMediumPublications');
-var request = require('request');
 
 router.get("/:id", (req,res) => {
 
-    // console.log(req.params);
     User.findOne({_id: req.params.id})
         .populate({
             path: 'notebooks',
@@ -21,7 +19,6 @@ router.get("/:id", (req,res) => {
             }
         })
         .exec((err, user) => {
-            // console.log("User", user);
             if (!user) return res.status(404).json({ errors: "User with given id not found" });
             res.status(200).json(user);
         })
@@ -39,6 +36,16 @@ router.get("/", (req, res) => {
     .exec((err, users) => {
         res.status(200).json(users);
     })
+})
+
+router.post("/:id/lastSavedNotebook", async (req, res) => {
+    const result = await User.updateOne({_id: req.params.id}, {lastSavedNotebook: req.body.lastSavedNotebook });
+    res.status(200).send(result);
+})
+
+router.post("/:id/lastSavedNote", async (req, res) => {
+    const result = await User.updateOne({_id: req.params.id}, {lastSavedNote: req.body.lastSavedNote });
+    res.status(200).send(result);
 })
 
 router.post("/", (req, res) => {
