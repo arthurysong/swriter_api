@@ -38,15 +38,17 @@ router.get("/", (req, res) => {
     })
 })
 
-router.post("/:id/lastSavedNotebook", async (req, res) => {
-    const result = await User.updateOne({_id: req.params.id}, {lastSavedNotebook: req.body.lastSavedNotebook });
-    res.status(200).send(result);
-})
+// DELETE
+// I think lastSavedNote is only used during saving so.. don't need
+// router.post("/:id/lastSavedNotebook", async (req, res) => {
+//     const result = await User.updateOne({_id: req.params.id}, {lastSavedNotebook: req.body.lastSavedNotebook });
+//     res.status(200).send(result);
+// })
 
-router.post("/:id/lastSavedNote", async (req, res) => {
-    const result = await User.updateOne({_id: req.params.id}, {lastSavedNote: req.body.lastSavedNote });
-    res.status(200).send(result);
-})
+// router.post("/:id/lastSavedNote", async (req, res) => {
+//     const result = await User.updateOne({_id: req.params.id}, {lastSavedNote: req.body.lastSavedNote });
+//     res.status(200).send(result);
+// })
 
 router.post("/", (req, res) => {
     User.create({ name: req.body.name, username: req.body.username }, (err, user) => {

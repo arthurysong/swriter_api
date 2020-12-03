@@ -57,8 +57,10 @@ router.post("/:id/publish", async (req, res) => {
 })
 
 router.put("/:id", async (req, res) => {
-    const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true })
-    // console.log("note after update", note);
+    const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+    // TODO: Also here update the owners lastSavedNote
+
+    const owner = await User.findOneAndUpdate({ _id: note.owner }, { lastSavedNote: note._id });
     return res.status(200).json({ message: "Note successfully saved", note })
 })
 
