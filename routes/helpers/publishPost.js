@@ -4,7 +4,7 @@ const fetchAccessTokenUsingRefreshToken = require('../helpers/fetchAccessTokenUs
 require('dotenv').config();
 
 function publishPost(accessToken, refreshToken, userMediumId, note, content, tags, publication) {
-    return new Promise((res, err) => {
+    return new Promise((res, rej) => {
         const headers = {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
@@ -25,7 +25,9 @@ function publishPost(accessToken, refreshToken, userMediumId, note, content, tag
             // publish post under publication
             request.post(`https://api.medium.com/v1/publications/${publication}/posts`, { headers, form: postData }, async (err, response, body) => {
                 console.log(JSON.parse(body));
-                if (JSON.parse(body).errors) {
+                const { errors } = JSON.parse(body);
+                if (errors) {
+                    if (errors[0].code === 2002) return rej(errors[0]);
                     let newAccessToken = await fetchAccessTokenUsingRefreshToken(refreshToken);
                     publishPost(newAccessToken, refreshToken, userMediumId, note, content, tags, publication).then(r => res(r));
                 } else {
@@ -43,7 +45,9 @@ function publishPost(accessToken, refreshToken, userMediumId, note, content, tag
         } else {
             request.post(`https://api.medium.com/v1/users/${userMediumId}/posts`, { headers, form: postData }, async (err, response, body) => {
                 console.log(JSON.parse(body));
-                if (JSON.parse(body).errors) {
+                const { errors } = JSON.parse(body);
+                if (errors) {
+                    if (errors[0].code === 2002) return rej(errors[0]);
                     let newAccessToken = await fetchAccessTokenUsingRefreshToken(refreshToken);
                     publishPost(newAccessToken, refreshToken, userMediumId, note, content, tags, publication).then(r => res(r));
                 } else {
