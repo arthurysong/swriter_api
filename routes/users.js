@@ -16,8 +16,9 @@ router.get("/:id", (req,res) => {
             populate: {
                 path: 'notes',
                 model: 'Note'
-            }
+            },
         })
+        .populate('lastSavedNote')
         .exec((err, user) => {
             if (!user) return res.status(404).json({ errors: "User with given id not found" });
             res.status(200).json(user);
@@ -124,6 +125,6 @@ router.post('/github-oauth', async (req, res) => {
     }
 
     const { access_token, refresh_token } = await fetchAccessToken(code);
-    console.log("access_token", access_token, "refresh_token", refresh_token);
+    // console.log("access_token", access_token, "refresh_token", refresh_token);
 })
 module.exports = router

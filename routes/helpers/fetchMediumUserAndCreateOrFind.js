@@ -33,26 +33,32 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
                             // console.log("notebook", notebook);
                             user.notebooks.push(notebook._id);
                             await user.save();
-                            const populatedUser = await user.populate({
-                                path: 'notebooks',
-                                populate: {
-                                    path: 'notes',
-                                    model: 'Note'
-                                }
-                            }).execPopulate();
+                            const populatedUser = await user
+                                .populate({
+                                    path: 'notebooks',
+                                    populate: {
+                                        path: 'notes',
+                                        model: 'Note'
+                                    }
+                                })
+                                .populate('lastSavedNote')
+                                .execPopulate();
                             res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                         })
                     })
 
                 } else {
                     // console.log('result', result);
-                    let populatedUser = await result.populate({
-                        path: 'notebooks',
-                        populate: {
-                            path: 'notes',
-                            model: 'Note'
-                        }
-                    }).execPopulate();
+                    let populatedUser = await result
+                        .populate({
+                            path: 'notebooks',
+                            populate: {
+                                path: 'notes',
+                                model: 'Note'
+                            }
+                        })
+                        .populate('lastSavedNote')
+                        .execPopulate();
                     res({ new_access_token: accessToken, refresh_token: refreshToken, user: populatedUser });
                 }
             })

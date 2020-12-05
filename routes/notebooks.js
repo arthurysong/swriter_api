@@ -14,8 +14,8 @@ router.get("/", (req,res) => {
 router.post("/", (req, res) => {
     // console.log("Test");
     if (!req.body.owner) return res.status(400).json({ errors: "Notebook's owner id must be provided" })
-    if (!req.body.name) return res.status(400).json({ errors: "Notebook's name must be provided" })
-    // console.log(req.body);
+    // if (!req.body.name) return res.status(400).json({ errors: "Notebook's name must be provided" })
+    console.log(req.body);
     Notebook.create({ name: req.body.name, owner: req.body.owner }, (err, notebook) => {
         User.findOne({ _id: req.body.owner } , async (err, user) => {
             user.notebooks.push(notebook._id);
@@ -26,6 +26,18 @@ router.post("/", (req, res) => {
         // console.log("created notebook", notebook);
         // res.status(201).json(notebook);
     })
+})
+
+router.put("/:id", async (req, res) => {
+    const notebook = await Notebook.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
+
+    return res.status(200).json({ message: "Notebook successfully saved", notebook })
+})
+
+router.delete("/:id", async (req, res) => {
+    await Notebook.deleteOne({ _id: req.params.id });
+
+    return res.status(200).json({ message: "Notebook successfully deleted" })
 })
 
 module.exports = router;
