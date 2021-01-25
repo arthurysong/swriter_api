@@ -8,6 +8,7 @@ require('dotenv').config();
 const users = require('./routes/users');
 const notes = require('./routes/notes');
 const notebooks = require('./routes/notebooks');
+const auth = require('./routes/auth');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use(express.static('uploads'));
 app.use('/users', users);
 app.use('/notes', notes);
 app.use('/notebooks', notebooks);
+app.use('/auth', auth)
 
 module.exports = app;
 

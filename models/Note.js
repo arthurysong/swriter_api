@@ -7,7 +7,8 @@ const NoteSchema = new mongoose.Schema({
     }, 
     content: {
         type: String,
-        default: ""
+        default: `#`
+        // default: `#`
     },
     published: {
         type: Boolean,

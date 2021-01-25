@@ -61,6 +61,7 @@ router.post("/:id/publish", async (req, res) => {
 })
 
 router.put("/:id", async (req, res) => {
+    console.log('req.body', req.body);
     const note = await Note.findOneAndUpdate({ _id: req.params.id }, req.body, { new: true });
     // TODO: Also here update the owners lastSavedNote
 
@@ -72,6 +73,12 @@ router.get("/", async (req, res) => {
     const notes = await Note.find({});
 
     return res.status(200).json(notes);
+})
+
+router.get('/:id', async (req, res) => {
+    const note = await Note.find({ _id: req.params.id });
+
+    return res.status(200).json(note)
 })
 
 router.delete("/:id", async (req, res) => {
