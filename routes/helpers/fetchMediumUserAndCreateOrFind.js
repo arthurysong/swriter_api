@@ -34,7 +34,47 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
                             user.notebooks.push(notebook._id);
                             await user.save();
 
-                            Note.create({ name: "How to Format your Medium Post", content: "![Add an image for the cover if you want](https://mwriter-api.herokuapp.com/0e12ff6777ffb959fac411cef1069950)\n\n# The first H1 is Title\n\n## Next H2 is Subtitle\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Ut semper felis vel laoreet aliquet. Mauris vulputate ac nunc a scelerisque. Sed accumsan, sapien eu vestibulum vestibulum, est enim ullamcorper ligula, quis accumsan quam risus vel nisi. Integer id luctus lacus. Vestibulum id diam non massa tincidunt dignissim nec ac urna. Phasellus iaculis pulvinar ultrices. Quisque pulvinar varius dui et rhoncus. Sed augue nisi, molestie vel fringilla quis, eleifend sit amet est. Donec non efficitur neque. Nunc vitae fringilla leo, in ullamcorper tortor. In at nulla sit amet diam rutrum vestibulum. Sed et risus ultricies, dignissim erat sit amet, pellentesque velit.\n\n\\\nVivamus aliquet, nisi et ornare commodo, elit ligula malesuada mauris, at condimentum turpis massa vitae nulla. Donec eu purus eget dolor rhoncus lobortis sed id ipsum. Pellentesque vehicula velit eu auctor egestas. Suspendisse ac odio et sem blandit vulputate sodales convallis ante. Mauris in dapibus ante. Pellentesque id felis nec massa tincidunt mollis et nec odio. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Morbi ornare, justo ut gravida iaculis, felis eros aliquet arcu, varius malesuada orci ex ut odio. Pellentesque tristique bibendum iaculis. Nam consectetur nibh in arcu rutrum tempor. Proin ac ipsum vitae ipsum laoreet imperdiet. Nam ut tincidunt ipsum. Praesent tempus quam eu dolor tempus, in ornare eros auctor. Curabitur et lacus orci. Mauris ex enim, scelerisque sit amet turpis in, pellentesque congue purus.\n\n\\\n```javascript\n// **any code snippet will get imported as a GitHub gist**\n\nconst x = 2;\n\nfunction add (x, y) {\n  return x + y;\n}\n\nadd(x, 1000);\n```\n\n\\\n", owner: user, notebook }, async (err, note) => {
+                            Note.create({ title: "How to Format your Medium Post", content: `![Add an image for the cover if you want](https://i.imgur.com/wvKui33.gif)
+
+                            # Title
+                            
+                            ## Subtitle
+                            
+                            [Check out the published post on Medium for comparison.](https://medium.com/p/d9ff9bcdd5e1/edit)
+                            
+                            \\
+                            The **first header 1** of the note becomes the **title** of the post on Medium. The next **header 2** of the note becomes the **subtitle** of the post.
+                            
+                            \\
+                            *NOTE: If you want a subtitle you need to have a title. You must use the exact header type (H1 and H2) for the title and subtitle.*
+                            
+                            # Header 1
+                            
+                            ## Header 2
+                            
+                            ### Header 3
+                            
+                            Any other **Header 1** headers in the note become Header 1's in the post. Any other **Header 2 and Header 3** headers become Header 2's in the post.
+                            
+                            ## Code Snippets
+                            
+                            Any code blocks will be imported as a GitHub gist in the Medium article.
+                            
+                            \`\`\`javascript
+                            // **any code snippet will get imported as a GitHub gist**
+                            
+                            const x = 2;
+                            
+                            function add (x, y) {
+                              return x + y;
+                            }
+                            
+                            add(x, 1000);
+                            \`\`\`
+                            
+                            # Important
+                            
+                            Please do not leave more than one line break at a time. Only leave at most one empty line between content, or else when you publish there will be unwanted ‘/’ characters in your post. This bug is currently being worked on.`, owner: user, notebook }, async (err, note) => {
                                 notebook.notes.push(note._id);
                                 await notebook.save();
 
