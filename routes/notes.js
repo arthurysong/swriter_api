@@ -51,6 +51,7 @@ router.post("/:id/publish", async (req, res) => {
         const contentWithPublishedGists = contentArray.join('');
         // console.log(contentArray);
         // console.log("publication", publication);
+        // console.log("contentWithGists", contentWithPublishedGists);
         try {
             let r = await publishPost(access_token, refresh_token, u.mediumId, n, contentWithPublishedGists, tags, publication)
             return res.status(201).json(r);

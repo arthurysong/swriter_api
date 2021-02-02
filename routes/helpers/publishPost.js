@@ -20,6 +20,8 @@ function publishPost(accessToken, refreshToken, userMediumId, note, content, tag
             tags
         }
 
+        console.log("hi");
+
         // If there is a publication, publish under that publication
         if (publication) {
             // publish post under publication
@@ -47,7 +49,11 @@ function publishPost(accessToken, refreshToken, userMediumId, note, content, tag
                 console.log(JSON.parse(body));
                 const { errors } = JSON.parse(body);
                 if (errors) {
-                    if (errors[0].code === 2002) return rej(errors[0]);
+                    console.log("errors", errors);
+                    // What is code -1...?
+                    if (errors[0].code === 2002 || errors[0].code === -1) return rej(errors[0]);
+
+                    // Only retry if code is authenticatino code error
                     let newAccessToken = await fetchAccessTokenUsingRefreshToken(refreshToken);
                     publishPost(newAccessToken, refreshToken, userMediumId, note, content, tags, publication).then(r => res(r));
                 } else {

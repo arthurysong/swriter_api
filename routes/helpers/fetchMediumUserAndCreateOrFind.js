@@ -31,51 +31,16 @@ const fetchMediumUserAndCreateOrFind = (accessToken, refreshToken) => new Promis
                         // console.log("User", user);
                         Notebook.create({ name: "First Notebook", owner: user }, async (err, notebook) => {
                             // console.log("errors", err);
-                            user.notebooks.push(notebook._id);
-                            await user.save();
+                            // user.notebooks.push(notebook._id);
+                            // await user.save();
 
-                            Note.create({ title: "How to Format your Medium Post", content: `![Add an image for the cover if you want](https://i.imgur.com/wvKui33.gif)
-
-                            # Title
-                            
-                            ## Subtitle
-                            
-                            [Check out the published post on Medium for comparison.](https://medium.com/p/d9ff9bcdd5e1/edit)
-                            
-                            \\
-                            The **first header 1** of the note becomes the **title** of the post on Medium. The next **header 2** of the note becomes the **subtitle** of the post.
-                            
-                            \\
-                            *NOTE: If you want a subtitle you need to have a title. You must use the exact header type (H1 and H2) for the title and subtitle.*
-                            
-                            # Header 1
-                            
-                            ## Header 2
-                            
-                            ### Header 3
-                            
-                            Any other **Header 1** headers in the note become Header 1's in the post. Any other **Header 2 and Header 3** headers become Header 2's in the post.
-                            
-                            ## Code Snippets
-                            
-                            Any code blocks will be imported as a GitHub gist in the Medium article.
-                            
-                            \`\`\`javascript
-                            // **any code snippet will get imported as a GitHub gist**
-                            
-                            const x = 2;
-                            
-                            function add (x, y) {
-                              return x + y;
-                            }
-                            
-                            add(x, 1000);
-                            \`\`\`
-                            
-                            # Important
-                            
-                            Please do not leave more than one line break at a time. Only leave at most one empty line between content, or else when you publish there will be unwanted ‘/’ characters in your post. This bug is currently being worked on.`, owner: user, notebook }, async (err, note) => {
+                            Note.create({ title: "How to Format your Medium Post", content: "![Add an image for the cover if you want](https://i.imgur.com/wvKui33.gif)\n\n# Title\n\n## Subtitle\n\n[Check out the published post on Medium for comparison.](https://medium.com/p/d9ff9bcdd5e1/edit) \n\nhttps://medium.com/@atribecalledarty/how-to-format-your-medium-post-d9ff9bcdd5e1\n\n\\\nThe **first header 1** of the note becomes the **title** of the post on Medium. The next **header 2** of the note becomes the **subtitle** of the post.\n\n\\\n*NOTE: If you want a subtitle you need to have a title. You must use the exact header type (H1 and H2) for the title and subtitle.*\n\n# Header 1\n\n## Header 2\n\n### Header 3\n\nAny other **Header 1** headers in the note become Header 1's in the post. Any other **Header 2 and Header 3** headers become Header 2's in the post.\n\n## Code Snippets\n\nAny code blocks will be imported as a GitHub gist in the Medium article.\n\n```javascript\n\nconst x = 2;\n\nfunction add (x, y) {\nreturn x + y;\n}\n\nadd(x, 1000);\n```\n\n# Important\n\nPlease do not leave more than one line break at a time. Only leave at most one empty line between content, or else when you publish there will be unwanted ‘/’ characters in your post. This bug is currently being worked on.", owner: user, notebook }, async (err, note) => {
                                 notebook.notes.push(note._id);
+
+                                user.notebooks.push(notebook._id);
+                                user.lastSavedNote = note._id;
+
+                                await user.save();
                                 await notebook.save();
 
                                 const populatedUser = await user
