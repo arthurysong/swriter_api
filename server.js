@@ -14,7 +14,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://www.mwriter.app", "https://mwriter.app"]
+  // origin: "yourmom.com",
+  origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://www.mwriter.app", "https://mwriter.app", /\.mwriter\.app$/]
 }));
 
 app.post('/image', upload.single('file'), (req, res) => {
